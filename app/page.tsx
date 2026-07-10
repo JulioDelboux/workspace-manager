@@ -1,33 +1,113 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from '../lib/supabase'
+import { UserButton } from '@clerk/nextjs'
+import Link from 'next/link'
+import NewDepartmentModal from '../components/NewDepartmentModal'
 
 export default async function Home() {
+  // Puxando os departamentos e contando quantos membros tem em cada um
   const { data: departments, error } = await supabase
-    .from("departments")
-    .select("*");
+    .from('departments')
+    .select('*, members(count)')
+    .order('created_at', { ascending: true })
+
+  // Puxando todos os membros apenas para contar o total geral
+  const { count: totalMembers } = await supabase
+    .from('members')
+    .select('*', { count: 'exact', head: true })
 
   if (error) {
-    return <div>Erro ao buscar dados: {error.message}</div>;
+    return <div>Erro ao buscar dados: {error.message}</div>
   }
 
   return (
-    <main className="p-10 bg-gray-900 min-h-screen text-white">
-      <h1 className="text-3xl font-bold mb-6 text-blue-400">
-        Workspace Manager - Teste de Conexão
-      </h1>
+    <div className="flex h-screen bg-gray-950 text-white font-sans">
 
-      <h2 className="text-xl mb-4">Departamentos Cadastrados:</h2>
+      {/* Menu Lateral */}
+      <aside className="w-64 bg-gray-900 border-r border-gray-800 p-6 flex flex-col">
+        <h2 className="text-2xl font-black text-blue-500 mb-10 tracking-tight">
+          Workspace.
+        </h2>
+        <nav className="space-y-2 flex-1">
+          <Link href="/" className="block p-3 rounded-lg bg-blue-600/10 text-blue-400 font-semibold border border-blue-500/20">
+            Departamentos
+          </Link>
+          <Link href="/membros" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+            Membros
+          </Link>
+          <Link href="/clientes" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+            Clientes
+          </Link>
+          <a href="#" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+            Agendamentos
+          </a>
+        </nav>
+      </aside>
 
-      <div className="grid gap-4 max-w-md">
-        {departments?.map((dept) => (
-          <div
-            key={dept.id}
-            className="p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-md"
-          >
-            <h3 className="font-bold text-lg text-white">{dept.name}</h3>
-            <p className="text-gray-400 text-sm">{dept.description}</p>
+      {/* Área Principal */}
+      <main className="flex-1 flex flex-col">
+
+        {/* Cabeçalho */}
+        <header className="h-20 border-b border-gray-800 flex items-center justify-between px-10 bg-gray-900/50 backdrop-blur-sm">
+          <h1 className="text-xl font-medium text-gray-200">Visão Geral</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-400">Admin</span>
+            <UserButton afterSignOutUrl="/"/>
           </div>
-        ))}
-      </div>
-    </main>
-  );
+        </header>
+
+        {/* Conteúdo do Dashboard */}
+        <div className="p-10 overflow-auto">
+
+          {/* Cartões de Métricas (KPIs) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="p-6 bg-gray-900 rounded-xl border border-gray-800 shadow-md">
+              <p className="text-gray-400 text-sm font-medium mb-1">Total de Departamentos</p>
+              <h3 className="text-3xl font-bold text-white">{departments?.length || 0}</h3>
+            </div>
+            <div className="p-6 bg-gray-900 rounded-xl border border-gray-800 shadow-md">
+              <p className="text-gray-400 text-sm font-medium mb-1">Total de Membros</p>
+              <h3 className="text-3xl font-bold text-blue-400">{totalMembers || 0}</h3>
+            </div>
+            <div className="p-6 bg-gray-900 rounded-xl border border-gray-800 shadow-md">
+              <p className="text-gray-400 text-sm font-medium mb-1">Status do Sistema</p>
+              <h3 className="text-xl font-bold text-green-400 flex items-center gap-2 mt-1">
+                <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                Online
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-white">Departamentos Cadastrados</h2>
+            <NewDepartmentModal />
+          </div>
+
+          {/* Grid de Departamentos com contagem de membros */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {departments?.map((dept) => (
+              <div key={dept.id} className="p-6 bg-gray-900 rounded-xl border border-gray-800 shadow-xl hover:border-blue-500/50 transition-all group flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-xl text-white mb-2 group-hover:text-blue-400 transition-colors">
+                    {dept.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                    {dept.description}
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Equipe
+                  </span>
+                  <span className="bg-gray-800 text-blue-400 px-3 py-1 rounded-full text-sm font-medium border border-gray-700">
+                    {dept.members[0]?.count || 0} membro(s)
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </main>
+    </div>
+  )
 }
