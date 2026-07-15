@@ -1,6 +1,8 @@
 import { supabase } from '../../lib/supabase'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import NewClientModal from '../../components/NewClientModal'
+import Sidebar from '../../components/Sidebar'
 
 export default async function Clientes() {
   // Puxando os clientes e fazendo JOIN para pegar o nome do Membro responsável
@@ -11,27 +13,14 @@ export default async function Clientes() {
 
   if (error) return <div>Erro ao buscar clientes: {error.message}</div>
 
+  // Puxando os membros para popular a lista de vendedores
+  const { data: members } = await supabase.from('members').select('id, name')
+
   return (
     <div className="flex h-screen bg-gray-950 text-white font-sans">
 
       {/* Menu Lateral atualizado com a aba Clientes */}
-      <aside className="w-64 bg-gray-900 border-r border-gray-800 p-6 flex flex-col">
-        <h2 className="text-2xl font-black text-blue-500 mb-10 tracking-tight">Workspace.</h2>
-        <nav className="space-y-2 flex-1">
-          <Link href="/" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Departamentos
-          </Link>
-          <Link href="/membros" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Membros
-          </Link>
-          <Link href="/clientes" className="block p-3 rounded-lg bg-blue-600/10 text-blue-400 font-semibold border border-blue-500/20">
-            Clientes
-          </Link>
-          <a href="#" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Agendamentos
-          </a>
-        </nav>
-      </aside>
+      <Sidebar />
 
       {/* Área Principal */}
       <main className="flex-1 flex flex-col">
@@ -47,9 +36,7 @@ export default async function Clientes() {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-semibold text-white">Carteira de Clientes</h2>
             {/* Em breve trocaremos este botão pelo Modal */}
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20">
-              + Novo Cliente
-            </button>
+            <NewClientModal members={members || []} />
           </div>
 
           {/* Tabela de Clientes */}

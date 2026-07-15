@@ -2,6 +2,8 @@ import { supabase } from '../lib/supabase'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import NewDepartmentModal from '../components/NewDepartmentModal'
+import Sidebar from '../components/Sidebar'
+import DepartmentChart from '../components/DepartmentChart'
 
 export default async function Home() {
   // Puxando os departamentos e contando quantos membros tem em cada um
@@ -23,25 +25,7 @@ export default async function Home() {
     <div className="flex h-screen bg-gray-950 text-white font-sans">
 
       {/* Menu Lateral */}
-      <aside className="w-64 bg-gray-900 border-r border-gray-800 p-6 flex flex-col">
-        <h2 className="text-2xl font-black text-blue-500 mb-10 tracking-tight">
-          Workspace.
-        </h2>
-        <nav className="space-y-2 flex-1">
-          <Link href="/" className="block p-3 rounded-lg bg-blue-600/10 text-blue-400 font-semibold border border-blue-500/20">
-            Departamentos
-          </Link>
-          <Link href="/membros" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Membros
-          </Link>
-          <Link href="/clientes" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Clientes
-          </Link>
-          <a href="#" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-            Agendamentos
-          </a>
-        </nav>
-      </aside>
+      <Sidebar />
 
       {/* Área Principal */}
       <main className="flex-1 flex flex-col">
@@ -75,8 +59,14 @@ export default async function Home() {
                 Online
               </h3>
             </div>
+            <div className="mb-10">
+              <DepartmentChart data={departments || []} />
+            </div>
           </div>
 
+
+
+          <DepartmentChart data={departments} />
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-white">Departamentos Cadastrados</h2>
             <NewDepartmentModal />

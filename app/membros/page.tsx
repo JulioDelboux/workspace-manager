@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabase'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import NewMemberModal from '../../components/NewMemberModal'
+import Sidebar from '../../components/Sidebar'
 
 export default async function Membros() {
   // Puxando os membros e fazendo um JOIN com a tabela de departamentos
@@ -19,23 +20,7 @@ export default async function Membros() {
     <div className="flex h-screen bg-gray-950 text-white font-sans">
 
       {/* Menu Lateral */}
-      <aside className="w-64 bg-gray-900 border-r border-gray-800 p-6 flex flex-col">
-        <h2 className="text-2xl font-black text-blue-500 mb-10 tracking-tight">Workspace.</h2>
-        <nav className="space-y-2 flex-1">
-        <Link href="/" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-          Departamentos
-        </Link>
-        <Link href="/membros" className="block p-3 rounded-lg bg-blue-600/10 text-blue-400 font-semibold border border-blue-500/20">
-           Membros
-        </Link>
-        <Link href="/clientes" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-           Clientes
-        </Link>
-        <a href="#" className="block p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
-          Agendamentos
-        </a>
-        </nav>
-      </aside>
+      <Sidebar />
 
       {/* Área Principal */}
       <main className="flex-1 flex flex-col">
